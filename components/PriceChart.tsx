@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface PriceChartProps {
@@ -12,11 +12,7 @@ export default function PriceChart({ metal }: PriceChartProps) {
   const [period, setPeriod] = useState('7'); // days
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchHistoricalData();
-  }, [metal, period]);
-
-  const fetchHistoricalData = async () => {
+  const fetchHistoricalData = useCallback(async () => {
     try {
       setLoading(true);
       const endDate = new Date();
@@ -40,7 +36,11 @@ export default function PriceChart({ metal }: PriceChartProps) {
       console.error('Error fetching historical data:', error);
       setLoading(false);
     }
-  };
+  }, [metal, period]);
+
+  useEffect(() => {
+    fetchHistoricalData();
+  }, [fetchHistoricalData]);
 
   return (
     <div>

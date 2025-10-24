@@ -1,5 +1,5 @@
 import { Router, Response } from 'express';
-import pool from '../config/database';
+import { supabase } from '../config/database';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { z } from 'zod';
 
@@ -17,32 +17,26 @@ router.get('/profile', authenticate, async (req: AuthRequest, res: Response) => 
   try {
     const userId = req.user?.userId;
 
-    const result = await pool.query(
-      `SELECT id, email, first_name, last_name, role, 
-              preferred_currency, notification_enabled, 
-              is_verified, created_at
-       FROM users 
-       WHERE id = $1`,
-      [userId]
-    );
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('id, email, first_name, last_name, role, preferred_currency, notification_enabled, created_at')
+      .eq('id', userId!)
+      .single();
 
-    if (result.rows.length === 0) {
+    if (error || !user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const user = result.rows[0];
-
     res.json({
       user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        role: user.role,
-        preferredCurrency: user.preferred_currency,
-        notificationEnabled: user.notification_enabled,
-        isVerified: user.is_verified,
-        createdAt: user.created_at,
+        id: (user as any).id,
+        email: (user as any).email,
+        firstName: (user as any).first_name,
+        lastName: (user as any).last_name,
+        role: (user as any).role,
+        preferredCurrency: (user as any).preferred_currency,
+        notificationEnabled: (user as any).notification_enabled,
+        createdAt: (user as any).created_at,
       },
     });
   } catch (error) {
@@ -58,43 +52,35 @@ router.put('/profile', authenticate, async (req: AuthRequest, res: Response) => 
     const { firstName, lastName, preferredCurrency, notificationEnabled } = 
       profileUpdateSchema.parse(req.body as any);
 
-    const updates: string[] = [];
-    const values: any[] = [];
-    let paramCount = 1;
+    const updateData: any = {};
 
     if (firstName !== undefined) {
-      updates.push(`first_name = $${paramCount++}`);
-      values.push(firstName);
+      updateData.first_name = firstName;
     }
     if (lastName !== undefined) {
-      updates.push(`last_name = $${paramCount++}`);
-      values.push(lastName);
+      updateData.last_name = lastName;
     }
     if (preferredCurrency !== undefined) {
-      updates.push(`preferred_currency = $${paramCount++}`);
-      values.push(preferredCurrency);
+      updateData.preferred_currency = preferredCurrency;
     }
     if (notificationEnabled !== undefined) {
-      updates.push(`notification_enabled = $${paramCount++}`);
-      values.push(notificationEnabled);
+      updateData.notification_enabled = notificationEnabled;
     }
 
-    if (updates.length === 0) {
+    if (Object.keys(updateData).length === 0) {
       return res.status(400).json({ error: 'No updates provided' });
     }
 
-    updates.push(`updated_at = CURRENT_TIMESTAMP`);
-    values.push(userId);
+    updateData.updated_at = new Date().toISOString();
 
-    const result = await pool.query(
-      `UPDATE users 
-       SET ${updates.join(', ')} 
-       WHERE id = $${paramCount}
-       RETURNING id, email, first_name, last_name, preferred_currency, notification_enabled`,
-      values
-    );
+    const { data: user, error } = await (supabase as any)
+      .from('users')
+      .update(updateData)
+      .eq('id', userId!)
+      .select('id, email, first_name, last_name, preferred_currency, notification_enabled')
+      .single();
 
-    const user = result.rows[0];
+    if (error) throw error;
 
     res.json({
       message: 'Profile updated successfully',

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import PriceCard from '@/components/PriceCard';
@@ -12,13 +12,7 @@ export default function Home() {
   const [selectedMetal, setSelectedMetal] = useState('gold');
   const [selectedCurrency, setSelectedCurrency] = useState('USD');
 
-  useEffect(() => {
-    fetchPrices();
-    const interval = setInterval(fetchPrices, 300000); // Update every 5 minutes
-    return () => clearInterval(interval);
-  }, [selectedCurrency]);
-
-  const fetchPrices = async () => {
+  const fetchPrices = useCallback(async () => {
     try {
       const response = await fetch(
         `${process.env.API_URL || 'http://localhost:5000'}/api/prices/current?currency=${selectedCurrency}`
@@ -30,7 +24,13 @@ export default function Home() {
       console.error('Error fetching prices:', error);
       setLoading(false);
     }
-  };
+  }, [selectedCurrency]);
+
+  useEffect(() => {
+    fetchPrices();
+    const interval = setInterval(fetchPrices, 300000); // Update every 5 minutes
+    return () => clearInterval(interval);
+  }, [fetchPrices]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">

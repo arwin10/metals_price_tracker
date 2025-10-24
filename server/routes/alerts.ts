@@ -1,5 +1,5 @@
 import { Router, Response } from 'express';
-import pool from '../config/database';
+import { supabase } from '../config/database';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { z } from 'zod';
 
@@ -17,14 +17,15 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.userId;
 
-    const result = await pool.query(
-      `SELECT * FROM price_alerts 
-       WHERE user_id = $1 
-       ORDER BY created_at DESC`,
-      [userId]
-    );
+    const { data: alerts, error } = await supabase
+      .from('price_alerts')
+      .select('*')
+      .eq('user_id', userId!)
+      .order('created_at', { ascending: false });
 
-    res.json({ alerts: result.rows });
+    if (error) throw error;
+
+    res.json({ alerts: alerts || [] });
   } catch (error) {
     console.error('Error fetching alerts:', error);
     res.status(500).json({ error: 'Failed to fetch alerts' });
@@ -37,15 +38,23 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
     const userId = req.user?.userId;
     const { metalType, targetPrice, condition, currency } = alertSchema.parse(req.body as any);
 
-    const result = await pool.query(
-      `INSERT INTO price_alerts 
-       (user_id, metal_type, target_price, condition, currency)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING *`,
-      [userId, metalType, targetPrice, condition, currency]
-    );
+    const { data: alert, error } = await (supabase as any)
+      .from('price_alerts')
+      .insert([
+        {
+          user_id: userId!,
+          metal_type: metalType,
+          target_price: targetPrice,
+          condition,
+          currency,
+        }
+      ])
+      .select()
+      .single();
 
-    res.status(201).json({ alert: result.rows[0] });
+    if (error) throw error;
+
+    res.status(201).json({ alert });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Validation error', details: error.errors });
@@ -61,14 +70,16 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res: Response) => {
     const userId = req.user?.userId;
     const { id } = req.params as any;
 
-    const result = await pool.query(
-      `DELETE FROM price_alerts 
-       WHERE id = $1 AND user_id = $2 
-       RETURNING id`,
-      [id, userId]
-    );
+    const { data, error } = await supabase
+      .from('price_alerts')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', userId!)
+      .select();
 
-    if (result.rows.length === 0) {
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
       return res.status(404).json({ error: 'Alert not found' });
     }
 
@@ -84,17 +95,23 @@ router.get('/history', authenticate, async (req: AuthRequest, res: Response) => 
   try {
     const userId = req.user?.userId;
 
-    const result = await pool.query(
-      `SELECT ah.*, pa.metal_type, pa.target_price, pa.condition
-       FROM alert_history ah
-       JOIN price_alerts pa ON ah.alert_id = pa.id
-       WHERE pa.user_id = $1
-       ORDER BY ah.triggered_at DESC
-       LIMIT 50`,
-      [userId]
-    );
+    const { data: history, error } = await supabase
+      .from('alert_history')
+      .select(`
+        *,
+        price_alerts (
+          metal_type,
+          target_price,
+          condition
+        )
+      `)
+      .eq('price_alerts.user_id', userId!)
+      .order('triggered_at', { ascending: false })
+      .limit(50);
 
-    res.json({ history: result.rows });
+    if (error) throw error;
+
+    res.json({ history: history || [] });
   } catch (error) {
     console.error('Error fetching alert history:', error);
     res.status(500).json({ error: 'Failed to fetch alert history' });

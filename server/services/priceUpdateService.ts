@@ -47,8 +47,7 @@ export const updatePrices = async () => {
         }
 
         // Insert new price record with all currencies
-        // @ts-ignore - Supabase type inference issue
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('metal_prices')
           .insert([
             {
@@ -129,8 +128,7 @@ export const checkPriceAlerts = async () => {
 
         if (triggered) {
           // Record alert trigger
-          // @ts-ignore - Supabase type inference issue
-          await supabase
+          await (supabase as any)
             .from('alert_history')
             .insert([
               {
@@ -141,8 +139,7 @@ export const checkPriceAlerts = async () => {
             ]);
 
           // Update alert
-          // @ts-ignore - Supabase type inference issue
-          await supabase
+          await (supabase as any)
             .from('price_alerts')
             .update({ triggered_at: new Date().toISOString() })
             .eq('id', alert.id);

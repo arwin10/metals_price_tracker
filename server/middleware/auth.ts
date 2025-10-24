@@ -36,7 +36,7 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
     req.user = {
       userId: user.id,
       email: user.email!,
-      role: profile?.role || 'user',
+      role: (profile as any)?.role || 'user',
     };
 
     next();

@@ -36,7 +36,7 @@ router.post('/register', async (req: Request, res: Response) => {
     }
 
     // Create user profile in public.users table
-    const { error: profileError } = await supabase
+    const { error: profileError } = await (supabase as any)
       .from('users')
       .insert({
         id: authData.user.id,
@@ -99,11 +99,11 @@ router.post('/login', async (req: Request, res: Response) => {
       user: {
         id: data.user.id,
         email: data.user.email,
-        firstName: profile?.first_name,
-        lastName: profile?.last_name,
-        role: profile?.role,
-        preferredCurrency: profile?.preferred_currency,
-        notificationEnabled: profile?.notification_enabled,
+        firstName: (profile as any)?.first_name,
+        lastName: (profile as any)?.last_name,
+        role: (profile as any)?.role,
+        preferredCurrency: (profile as any)?.preferred_currency,
+        notificationEnabled: (profile as any)?.notification_enabled,
       },
       session: data.session,
     });

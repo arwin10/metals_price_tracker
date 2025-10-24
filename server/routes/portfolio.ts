@@ -1,7 +1,16 @@
 import { Router, Response } from 'express';
-import pool from '../config/database';
+import { supabase } from '../config/database';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { z } from 'zod';
+
+// Temporary pool-like wrapper for complex queries
+const pool = {
+  query: async (sql: string, params?: any[]): Promise<{ rows: any[] }> => {
+    // This is a temporary workaround - these queries need to be migrated to Supabase properly
+    // For now, throwing error to indicate unimplemented
+    throw new Error('Complex SQL queries need to be migrated to Supabase format');
+  }
+};
 
 const router = Router();
 
