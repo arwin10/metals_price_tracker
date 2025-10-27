@@ -20,7 +20,7 @@ export default function PriceChart({ metal }: PriceChartProps) {
       startDate.setDate(endDate.getDate() - parseInt(period));
 
       const response = await fetch(
-        `${process.env.API_URL || 'http://localhost:5000'}/api/prices/history/${metal}?` +
+        `/api/prices/history/${metal}?` +
         `startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
       );
       const result = await response.json();

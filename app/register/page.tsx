@@ -35,7 +35,7 @@ export default function RegisterPage() {
 
     try {
       const response = await axios.post(
-        `${process.env.API_URL || 'http://localhost:5000'}/api/auth/register`,
+        `/api/auth/register`,
         {
           email: formData.email,
           password: formData.password,
