@@ -5,6 +5,28 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
+    // Validate environment variables at runtime
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Missing Supabase environment variables:', {
+        hasUrl: !!supabaseUrl,
+        hasKey: !!supabaseKey
+      });
+      return NextResponse.json(
+        { 
+          error: 'Server configuration error',
+          message: 'Supabase environment variables are not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel dashboard.',
+          debug: {
+            hasSupabaseUrl: !!supabaseUrl,
+            hasSupabaseKey: !!supabaseKey
+          }
+        },
+        { status: 500 }
+      );
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const currency = searchParams.get('currency') || 'USD';
     const currencyStr = currency.toUpperCase();
@@ -60,10 +82,14 @@ export async function GET(request: NextRequest) {
     }));
 
     return NextResponse.json({ prices, currency: currencyStr });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching current prices:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch prices' },
+      { 
+        error: 'Failed to fetch prices',
+        message: error?.message || 'Unknown error',
+        details: process.env.NODE_ENV === 'development' ? error?.stack : undefined
+      },
       { status: 500 }
     );
   }
