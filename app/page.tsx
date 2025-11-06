@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import PriceCard from '@/components/PriceCard';
 import PriceChart from '@/components/PriceChart';
+import MarketOverview from '@/components/MarketOverview';
 import { WeightUnit } from '@/lib/weightConversions';
 
 export default function Home() {
@@ -57,6 +58,8 @@ export default function Home() {
           </div>
         </section>
 
+        <MarketOverview />
+        
         {/* Current Prices */}
         <section className="mb-12">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -134,8 +137,8 @@ export default function Home() {
 
         {/* Features */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          <div className="card text-center">
-            <div className="text-4xl mb-4">📊</div>
+          <div className="card text-center rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
+            <div className="text-4xl mb-4 text-primary-500">📊</div>
             <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
               Real-Time Tracking
             </h3>
@@ -144,8 +147,8 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="card text-center">
-            <div className="text-4xl mb-4">💼</div>
+          <div className="card text-center rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
+            <div className="text-4xl mb-4 text-primary-500">💼</div>
             <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
               Portfolio Management
             </h3>
@@ -154,14 +157,17 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="card text-center">
-            <div className="text-4xl mb-4">🔔</div>
+          <div className="card text-center rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
+            <div className="text-4xl mb-4 text-primary-500">🔗</div>
             <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
-              Price Alerts
+              All Metals Prices
             </h3>
             <p className="text-gray-600 dark:text-gray-300">
-              Get notified when prices reach your target levels
+              View prices for all precious metals including rare investments
             </p>
+            <Link href="/prices" className="mt-4 btn-primary text-sm px-4 py-2 rounded-lg inline-block">
+              View All Prices
+            </Link>
           </div>
         </section>
       </main>

@@ -44,7 +44,6 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase
       .from('metal_prices')
       .select('*')
-      .in('metal_type', ['gold', 'silver', 'platinum', 'palladium'])
       .order('timestamp', { ascending: false });
 
     if (error) {

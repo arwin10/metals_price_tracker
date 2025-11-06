@@ -47,35 +47,35 @@ export default function PriceCard({ price, currency = 'USD', unit = 'oz', onClic
 
   return (
     <div 
-      className="card cursor-pointer hover:shadow-xl transition-shadow duration-200"
+      className="card cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 rounded-2xl border border-gray-200 dark:border-gray-700"
       onClick={onClick}
     >
       <div className="flex items-center justify-between mb-4">
         <span className="text-4xl">{metalIcons[price.metal]}</span>
-        <span className={`text-sm font-semibold px-2 py-1 rounded ${
-          isPositive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+        <span className={`text-sm font-semibold px-3 py-1 rounded-full ${
+          isPositive ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
         }`}>
           {isPositive ? '↑' : '↓'} {Math.abs(price.changePercentage).toFixed(2)}%
         </span>
       </div>
 
-      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
         {metalNames[price.metal]}
       </h3>
       
-      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+      <div className="text-xs text-gray-500 dark:text-gray-400 mb-3">
         {UNIT_LABELS[unit]}
       </div>
 
-      <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">
+      <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-3">
         {currencySymbol}{convertedPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </div>
 
-      <div className={`text-sm ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-        {isPositive ? '+' : ''}{currencySymbol}{Math.abs(convertedChange).toFixed(2)} (24h)
+      <div className={`text-sm font-medium ${isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+        {isPositive ? '+' : ''}{currencySymbol}{Math.abs(convertedChange).toFixed(2)} <span className="text-gray-500 dark:text-gray-400">(24h)</span>
       </div>
 
-      <div className="text-xs text-gray-500 dark:text-gray-400 mt-4">
+      <div className="text-xs text-gray-500 dark:text-gray-400 mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
         Last updated: {new Date(price.timestamp).toLocaleTimeString()}
       </div>
     </div>

@@ -41,7 +41,7 @@ services:
       SMTP_USER: ${SMTP_USER}
       SMTP_PASSWORD: ${SMTP_PASSWORD}
     ports:
-      - "${API_PORT:-5000}:5000"
+      - "${API_PORT:-5001}:5001"
     depends_on:
       postgres:
         condition: service_healthy
@@ -56,7 +56,7 @@ services:
       dockerfile: Dockerfile
     container_name: gold_tracker_frontend
     environment:
-      API_URL: http://backend:5000
+      API_URL: http://backend:5001
       NODE_ENV: production
     ports:
       - "3000:3000"
