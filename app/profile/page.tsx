@@ -56,8 +56,15 @@ export default function ProfilePage() {
           });
         } else {
           setProfile({
-            ...data,
-            preferred_currency: data.preferred_currency || 'INR'
+            id: (data as any)?.id || '',
+            email: (data as any)?.email || '',
+            first_name: (data as any)?.first_name || null,
+            last_name: (data as any)?.last_name || null,
+            role: (data as any)?.role || 'user',
+            preferred_currency: (data as any)?.preferred_currency || 'INR',
+            notification_enabled: (data as any)?.notification_enabled !== undefined ? (data as any).notification_enabled : true,
+            created_at: (data as any)?.created_at || '',
+            updated_at: (data as any)?.updated_at || '',
           });
         }
       } catch (err) {
@@ -105,12 +112,12 @@ export default function ProfilePage() {
         });
       }
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('users')
         .update({
           first_name: profile.first_name || null,
           last_name: profile.last_name || null,
-          preferred_currency: profile.preferred_currency || 'USD',
+          preferred_currency: profile.preferred_currency || 'INR',
           notification_enabled: profile.notification_enabled !== undefined ? profile.notification_enabled : true,
           updated_at: new Date().toISOString(),
         })

@@ -65,7 +65,7 @@ export default function AlertsPage() {
           </h2>
           <div className="text-center py-8">
             <p className="text-gray-600 dark:text-gray-400">
-              You don't have any price alerts set up yet.
+              You don&apos;t have any price alerts set up yet.
             </p>
           </div>
         </div>

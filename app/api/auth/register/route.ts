@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create user profile in users table
-    const { error: profileError } = await supabaseAdmin
+    const { error: profileError } = await (supabaseAdmin as any)
       .from('users')
       .insert({
         id: authData.user.id,

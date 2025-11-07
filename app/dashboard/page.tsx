@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
@@ -15,6 +15,18 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [selectedCurrency, setSelectedCurrency] = useState('INR');
   const [selectedUnit, setSelectedUnit] = useState<WeightUnit>('10g');
+
+  const fetchPrices = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/prices/current?currency=${selectedCurrency}`);
+      const data = await response.json();
+      setPrices(data.prices || []);
+    } catch (error) {
+      console.error('Error fetching prices:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedCurrency]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -31,25 +43,13 @@ export default function DashboardPage() {
     };
 
     checkAuth();
-  }, [router]);
-
-  const fetchPrices = async () => {
-    try {
-      const response = await fetch(`/api/prices/current?currency=${selectedCurrency}`);
-      const data = await response.json();
-      setPrices(data.prices || []);
-    } catch (error) {
-      console.error('Error fetching prices:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [router, fetchPrices]);
 
   useEffect(() => {
     if (user) {
       fetchPrices();
     }
-  }, [selectedCurrency, user]);
+  }, [selectedCurrency, user, fetchPrices]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -84,7 +84,7 @@ export default function DashboardPage() {
               Welcome back, {user?.firstName || 'User'}!
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Here's your personalized dashboard
+              Here&apos;s your personalized dashboard
             </p>
           </div>
           <button
