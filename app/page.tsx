@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import PriceCard from '@/components/PriceCard';
 import PriceChart from '@/components/PriceChart';
@@ -9,11 +10,24 @@ import MarketOverview from '@/components/MarketOverview';
 import { WeightUnit } from '@/lib/weightConversions';
 
 export default function Home() {
+  const router = useRouter();
   const [prices, setPrices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMetal, setSelectedMetal] = useState('gold');
-  const [selectedCurrency, setSelectedCurrency] = useState('USD');
-  const [selectedUnit, setSelectedUnit] = useState<WeightUnit>('oz');
+  const [selectedCurrency, setSelectedCurrency] = useState('INR');
+  const [selectedUnit, setSelectedUnit] = useState<WeightUnit>('10g');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    // Check if user is logged in
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    if (token && userData) {
+      setIsLoggedIn(true);
+      setUser(JSON.parse(userData));
+    }
+  }, []);
 
   const fetchPrices = useCallback(async () => {
     try {
@@ -40,23 +54,45 @@ export default function Home() {
       <Navbar />
       
       <main className="container mx-auto px-4 py-8">
-        {/* Hero Section */}
-        <section className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            Track Precious Metals Prices
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-            Real-time tracking of gold, silver, platinum, and palladium prices
-          </p>
-          <div className="flex justify-center gap-4">
-            <Link href="/register" className="btn-primary px-8 py-3 text-lg">
-              Get Started
-            </Link>
-            <Link href="/login" className="btn-secondary px-8 py-3 text-lg">
-              Sign In
-            </Link>
-          </div>
-        </section>
+        {/* Hero Section - Only show for non-logged in users */}
+        {!isLoggedIn && (
+          <section className="text-center mb-12">
+            <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              Track Precious Metals Prices
+            </h1>
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+              Real-time tracking of gold, silver, platinum, and palladium prices
+            </p>
+            <div className="flex justify-center gap-4">
+              <Link href="/register" className="btn-primary px-8 py-3 text-lg">
+                Get Started
+              </Link>
+              <Link href="/login" className="btn-secondary px-8 py-3 text-lg">
+                Sign In
+              </Link>
+            </div>
+          </section>
+        )}
+
+        {/* Welcome Section - Only show for logged in users */}
+        {isLoggedIn && (
+          <section className="text-center mb-12">
+            <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              Welcome back, {user?.firstName || 'User'}!
+            </h1>
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+              Track and manage your precious metals investments
+            </p>
+            <div className="flex justify-center gap-4">
+              <Link href="/dashboard" className="btn-primary px-8 py-3 text-lg">
+                Go to Dashboard
+              </Link>
+              <Link href="/prices" className="btn-secondary px-8 py-3 text-lg">
+                View All Prices
+              </Link>
+            </div>
+          </section>
+        )}
 
         <MarketOverview />
         
@@ -175,7 +211,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="bg-gray-800 text-white py-8 mt-12">
         <div className="container mx-auto px-4 text-center">
-          <p>&copy; 2025 Gold Price Tracker. All rights reserved.</p>
+          <p>&copy; 2025 thegoldprice.in. All rights reserved.</p>
           <p className="mt-2 text-gray-400">
             Data sourced from Metals API and other reliable providers
           </p>

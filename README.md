@@ -1,4 +1,4 @@
-# Gold Price Tracker - Precious Metals Price Tracking Web Application
+# thegoldprice.in - Precious Metals Price Tracking Web Application
 
 A full-stack web application for tracking real-time and historical prices of precious metals (gold, silver, platinum, palladium) with portfolio management and price alert features.
 

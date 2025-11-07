@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
+      console.error('Login error:', error);
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401 }
@@ -42,11 +43,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch user profile
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('users')
       .select('*')
       .eq('id', data.user.id)
       .single();
+
+    if (profileError) {
+      console.error('Profile fetch error:', profileError);
+      return NextResponse.json(
+        { error: 'User profile not found' },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({
       message: 'Login successful',
@@ -59,7 +68,7 @@ export async function POST(request: NextRequest) {
         preferredCurrency: (profile as any)?.preferred_currency,
         notificationEnabled: (profile as any)?.notification_enabled,
       },
-      session: data.session,
+      token: data.session.access_token,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

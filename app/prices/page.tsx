@@ -23,8 +23,8 @@ const ALL_METALS = [
 export default function PricesPage() {
   const [prices, setPrices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCurrency, setSelectedCurrency] = useState('USD');
-  const [selectedUnit, setSelectedUnit] = useState<WeightUnit>('oz');
+  const [selectedCurrency, setSelectedCurrency] = useState('INR');
+  const [selectedUnit, setSelectedUnit] = useState<WeightUnit>('10g');
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 

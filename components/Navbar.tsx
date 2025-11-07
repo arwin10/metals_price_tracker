@@ -33,7 +33,7 @@ export default function Navbar() {
           <Link href="/" className="text-2xl font-bold text-primary-600 dark:text-primary-400 flex items-center">
             <span className="mr-2">🏆</span>
             <span className="bg-gradient-to-r from-primary-500 to-secondary-600 bg-clip-text text-transparent">
-              Gold Tracker
+              thegoldprice.in
             </span>
           </Link>
 

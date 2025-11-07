@@ -5,7 +5,7 @@ import { Inter } from 'next/font/google'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Precious Metals Prices - Gold Tracker',
+  title: 'Precious Metals Prices - thegoldprice.in',
   description: 'Track real-time and historical prices of all precious metals including gold, silver, platinum, palladium, rhodium, and more.',
 }
 

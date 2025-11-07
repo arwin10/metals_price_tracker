@@ -26,12 +26,15 @@ export default function LoginPage() {
       );
 
       // Store token and user data
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+      }
 
-      // Redirect to dashboard
-      router.push('/dashboard');
+      // Redirect to prices page (since there's no dashboard yet)
+      router.push('/prices');
     } catch (err: any) {
+      console.error('Login error:', err);
       setError(err.response?.data?.error || 'Login failed');
       setLoading(false);
     }
