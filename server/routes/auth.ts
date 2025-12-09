@@ -159,5 +159,28 @@ router.post('/refresh', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to refresh token' });
   }
 });
+// Forgot password - Send reset email
+router.post('/forgot-password', async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${frontendUrl}/reset-password`,
+    });
+
+    if (error) throw error;
+
+    res.json({ message: 'Password reset email sent' });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ error: 'Failed to send reset email' });
+  }
+});
 
 export default router;

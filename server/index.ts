@@ -7,6 +7,7 @@ import priceRoutes from './routes/prices';
 import portfolioRoutes from './routes/portfolio';
 import alertRoutes from './routes/alerts';
 import userRoutes from './routes/user';
+import adminRoutes from './routes/admin';
 import { startPriceUpdateCron } from './services/priceUpdateService';
 
 dotenv.config();
@@ -34,6 +35,7 @@ app.use('/api/prices', priceRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/alerts', alertRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
@@ -43,7 +45,7 @@ app.get('/health', (req: Request, res: Response) => {
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error('Error:', err);
-  res.status(500).json({ 
+  res.status(500).json({
     error: 'Internal server error',
     message: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
@@ -59,11 +61,11 @@ const startServer = async () => {
   try {
     await initDatabase();
     console.log('Database initialized successfully');
-    
+
     // Start price update cron job
     startPriceUpdateCron();
     console.log('Price update service started');
-    
+
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
       console.log(`Environment: ${process.env.NODE_ENV}`);
