@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import { supabase } from '../config/database';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { z } from 'zod';
+import { Database } from '../../lib/database.types';
 
 const router = Router();
 
@@ -193,7 +194,7 @@ router.post('/:id/holdings', authenticate, async (req: AuthRequest, res: Respons
       .from('portfolio_holdings')
       .insert([
         {
-          portfolio_id: id,
+          portfolio_id: parseInt(id),
           metal_type: metalType,
           quantity,
           unit,

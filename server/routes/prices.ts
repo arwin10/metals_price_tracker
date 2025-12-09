@@ -12,13 +12,13 @@ router.get('/current', async (req, res: Response) => {
   try {
     const { currency = 'USD' } = req.query;
     const currencyStr = currency.toString().toUpperCase();
-    
+
     // Validate currency
     const supportedCurrencies = ['USD', 'EUR', 'GBP', 'INR'];
     if (!supportedCurrencies.includes(currencyStr)) {
       return res.status(400).json({ error: 'Unsupported currency. Supported: USD, EUR, GBP, INR' });
     }
-    
+
     // Get latest price for each metal type
     const { data, error } = await supabase
       .from('metal_prices')
@@ -89,7 +89,7 @@ router.get('/history/:metal', async (req, res: Response) => {
       throw error;
     }
 
-    const prices = data?.map((row: MetalPriceRow) => ({
+    const prices = data?.map((row: any) => ({
       metal: row.metal_type,
       price: row[`price_${currency.toString().toLowerCase()}` as keyof MetalPriceRow] as number || row.price_usd,
       change24h: row.change_24h ? parseFloat(row.change_24h.toString()) : 0,
@@ -131,11 +131,11 @@ router.get('/stats/:metal', async (req, res: Response) => {
     }
 
     // Calculate statistics
-    const prices = (data || []).map((row: MetalPriceRow) => parseFloat(row.price_usd.toString()));
+    const prices = (data || []).map((row: any) => parseFloat(row.price_usd.toString()));
     const high = Math.max(...prices);
     const low = Math.min(...prices);
     const average = prices.reduce((sum, p) => sum + p, 0) / prices.length;
-    
+
     // Calculate standard deviation for volatility
     const variance = prices.reduce((sum, p) => sum + Math.pow(p - average, 2), 0) / prices.length;
     const volatility = Math.sqrt(variance);

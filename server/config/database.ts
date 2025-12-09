@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import { Database } from '../../lib/database.types';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -12,7 +11,7 @@ if (!supabaseUrl || !supabaseServiceKey) {
 }
 
 // Create Supabase client with service role key for backend operations
-export const supabase = createClient<Database>(supabaseUrl, supabaseServiceKey, {
+export const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
     persistSession: false,
@@ -23,7 +22,7 @@ export const initDatabase = async () => {
   try {
     // Test connection by fetching from any table
     const { error } = await supabase.from('users').select('count').limit(1);
-    
+
     if (error) {
       console.error('Supabase connection error:', error.message);
       console.log('Please ensure your Supabase tables are created using the SQL in database/supabase-schema.sql');
