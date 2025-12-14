@@ -3,11 +3,22 @@
 import { useEffect, useState, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
+import { WeightUnit, UNIT_LABELS, UNIT_CONVERSIONS } from '@/lib/weightConversions';
+
 interface PriceChartProps {
   metal: string;
+  currency?: string;
+  unit?: WeightUnit;
 }
 
-export default function PriceChart({ metal }: PriceChartProps) {
+const currencySymbols: Record<string, string> = {
+  USD: '$',
+  EUR: '€',
+  GBP: '£',
+  INR: '₹',
+};
+
+export default function PriceChart({ metal, currency = 'USD', unit = '10g' }: PriceChartProps) {
   const [data, setData] = useState<any[]>([]);
   const [period, setPeriod] = useState('7'); // days
   const [loading, setLoading] = useState(true);
@@ -21,13 +32,15 @@ export default function PriceChart({ metal }: PriceChartProps) {
 
       const response = await fetch(
         `/api/prices/history/${metal}?` +
-        `startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
+        `startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&currency=${currency}`
       );
       const result = await response.json();
-      
-      const chartData = result.prices.map((item: any) => ({
+
+      const conversionFactor = UNIT_CONVERSIONS[unit];
+
+      const chartData = (result.prices || []).map((item: any) => ({
         date: new Date(item.timestamp).toLocaleDateString(),
-        price: item.price,
+        price: item.price * conversionFactor,
       }));
 
       setData(chartData);
@@ -36,7 +49,7 @@ export default function PriceChart({ metal }: PriceChartProps) {
       console.error('Error fetching historical data:', error);
       setLoading(false);
     }
-  }, [metal, period]);
+  }, [metal, period, currency, unit]);
 
   useEffect(() => {
     fetchHistoricalData();
@@ -44,8 +57,9 @@ export default function PriceChart({ metal }: PriceChartProps) {
 
   // Get the color based on metal type
   const getMetalColor = (metal: string) => {
-    switch(metal) {
+    switch (metal) {
       case 'gold': return '#f3c341';
+      case 'gold_22k': return '#f3c341';
       case 'silver': return '#c0c0c0';
       case 'platinum': return '#e5e4e2';
       case 'palladium': return '#b87333';
@@ -53,22 +67,29 @@ export default function PriceChart({ metal }: PriceChartProps) {
     }
   };
 
+  const currencySymbol = currencySymbols[currency] || '$';
+
   return (
     <div className="p-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white capitalize">
-          {metal} Price History
-        </h3>
+        <div>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white capitalize">
+            {metal.replace('_', ' ')} Price History
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Price per {UNIT_LABELS[unit]} in {currency}
+          </p>
+        </div>
+
         <div className="flex flex-wrap gap-2">
           {['7', '30', '90', '365'].map((days) => (
             <button
               key={days}
               onClick={() => setPeriod(days)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                period === days
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${period === days
                   ? 'bg-primary-500 text-white shadow-md'
                   : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-              }`}
+                }`}
             >
               {days === '365' ? '1Y' : `${days}D`}
             </button>
@@ -89,32 +110,32 @@ export default function PriceChart({ metal }: PriceChartProps) {
           <ResponsiveContainer width="100%" height={400}>
             <LineChart data={data}>
               <CartesianGrid strokeDasharray="4 4" stroke="#f0f0f0" vertical={false} />
-              <XAxis 
-                dataKey="date" 
+              <XAxis
+                dataKey="date"
                 tick={{ fontSize: 12 }}
                 tickMargin={10}
               />
-              <YAxis 
-                domain={['auto', 'auto']} 
+              <YAxis
+                domain={['auto', 'auto']}
                 tick={{ fontSize: 12 }}
                 tickMargin={10}
-                tickFormatter={(value) => `$${value.toLocaleString()}`}
+                tickFormatter={(value) => `${currencySymbol}${value.toLocaleString()}`}
               />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
                   backdropFilter: 'blur(10px)',
                   borderRadius: '8px',
                   border: '1px solid #e5e7eb',
                   boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
                 }}
                 labelStyle={{ fontWeight: 'bold', color: '#374151' }}
-                formatter={(value) => [`$${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 'Price']}
+                formatter={(value) => [`${currencySymbol}${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 'Price']}
               />
-              <Line 
-                type="monotone" 
-                dataKey="price" 
-                stroke={getMetalColor(metal)} 
+              <Line
+                type="monotone"
+                dataKey="price"
+                stroke={getMetalColor(metal)}
                 strokeWidth={3}
                 dot={{ stroke: getMetalColor(metal), strokeWidth: 2, r: 4, fill: '#fff' }}
                 activeDot={{ r: 6, stroke: '#fff', strokeWidth: 2 }}

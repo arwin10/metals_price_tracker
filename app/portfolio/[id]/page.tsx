@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from '../../../components/Navbar';
+
 import ExportButton from '../../../components/ExportButton';
 import axios from 'axios';
 
@@ -43,7 +43,7 @@ export default function PortfolioDetailsPage({ params }: { params: { id: string 
 
     if (loading) return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-            <Navbar />
+
             <div className="flex justify-center items-center h-64">
                 <div className="text-xl text-gray-500">Loading portfolio...</div>
             </div>
@@ -52,7 +52,7 @@ export default function PortfolioDetailsPage({ params }: { params: { id: string 
 
     if (error) return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-            <Navbar />
+
             <div className="max-w-7xl mx-auto px-4 py-8">
                 <div className="bg-red-50 text-red-700 p-4 rounded-lg">{error}</div>
             </div>
@@ -61,7 +61,7 @@ export default function PortfolioDetailsPage({ params }: { params: { id: string 
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-            <Navbar />
+
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="flex justify-between items-start mb-8">

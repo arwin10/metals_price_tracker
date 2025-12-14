@@ -20,7 +20,7 @@ export default function ProfilePage() {
         // Get user from localStorage
         const userData = localStorage.getItem('user');
         const token = localStorage.getItem('token');
-        
+
         if (!userData || !token) {
           router.push('/login');
           return;
@@ -128,7 +128,7 @@ export default function ProfilePage() {
       }
 
       setSuccess('Profile updated successfully!');
-      
+
       // Update localStorage with new data
       const updatedUser = {
         ...user,
@@ -144,12 +144,6 @@ export default function ProfilePage() {
     } finally {
       setUpdating(false);
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    router.push('/');
   };
 
   if (loading) {
@@ -184,165 +178,157 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">User Profile</h1>
-          <button
-            onClick={handleLogout}
-            className="btn-secondary"
-          >
-            Logout
-          </button>
+    <main className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">User Profile</h1>
+      </div>
+
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+          {error}
         </div>
+      )}
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-            {error}
-          </div>
-        )}
+      {success && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
+          {success}
+        </div>
+      )}
 
-        {success && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
-            {success}
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Profile Card */}
-          <div className="card lg:col-span-1">
-            <div className="text-center py-8">
-              <div className="mx-auto bg-gray-200 dark:bg-gray-700 border-2 border-dashed rounded-xl w-24 h-24 flex items-center justify-center mb-4">
-                <span className="text-3xl">
-                  {profile?.first_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
-                </span>
-              </div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                {profile?.first_name} {profile?.last_name}
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400">{user?.email}</p>
-              <div className="mt-4">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                  {profile?.role || 'user'}
-                </span>
-              </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Profile Card */}
+        <div className="card lg:col-span-1">
+          <div className="text-center py-8">
+            <div className="mx-auto bg-gray-200 dark:bg-gray-700 border-2 border-dashed rounded-xl w-24 h-24 flex items-center justify-center mb-4">
+              <span className="text-3xl">
+                {profile?.first_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+              </span>
             </div>
-          </div>
-
-          {/* Profile Form */}
-          <div className="card lg:col-span-2">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Profile Information</h3>
-            
-            <form onSubmit={handleUpdateProfile} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    First Name
-                  </label>
-                  <input
-                    type="text"
-                    className="input-field"
-                    value={profile?.first_name || ''}
-                    onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
-                    placeholder="First name"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Last Name
-                  </label>
-                  <input
-                    type="text"
-                    className="input-field"
-                    value={profile?.last_name || ''}
-                    onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
-                    placeholder="Last name"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  className="input-field"
-                  value={user?.email || ''}
-                  disabled
-                />
-                <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Preferred Currency
-                </label>
-                <select
-                  className="input-field"
-                  value={profile?.preferred_currency || 'USD'}
-                  onChange={(e) => setProfile({ ...profile, preferred_currency: e.target.value })}
-                >
-                  <option value="USD">USD ($)</option>
-                  <option value="EUR">EUR (€)</option>
-                  <option value="GBP">GBP (£)</option>
-                  <option value="INR">INR (₹)</option>
-                </select>
-              </div>
-              
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="notifications"
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                  checked={profile?.notification_enabled || false}
-                  onChange={(e) => setProfile({ ...profile, notification_enabled: e.target.checked })}
-                />
-                <label htmlFor="notifications" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                  Enable price notifications
-                </label>
-              </div>
-              
-              <div className="flex justify-end space-x-4">
-                <button
-                  type="button"
-                  onClick={() => router.push('/prices')}
-                  className="btn-secondary"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={updating}
-                  className="btn-primary disabled:opacity-50"
-                >
-                  {updating ? 'Updating...' : 'Update Profile'}
-                </button>
-              </div>
-            </form>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              {profile?.first_name} {profile?.last_name}
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">{user?.email}</p>
+            <div className="mt-4">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                {profile?.role || 'user'}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Account Statistics */}
-        <div className="card mt-8">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Account Statistics</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow">
-              <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">0</div>
-              <div className="text-gray-600 dark:text-gray-400">Portfolios</div>
+        {/* Profile Form */}
+        <div className="card lg:col-span-2">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Profile Information</h3>
+
+          <form onSubmit={handleUpdateProfile} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  className="input-field"
+                  value={profile?.first_name || ''}
+                  onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
+                  placeholder="First name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  className="input-field"
+                  value={profile?.last_name || ''}
+                  onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
+                  placeholder="Last name"
+                />
+              </div>
             </div>
-            <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow">
-              <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">0</div>
-              <div className="text-gray-600 dark:text-gray-400">Alerts Set</div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                className="input-field"
+                value={user?.email || ''}
+                disabled
+              />
+              <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
             </div>
-            <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow">
-              <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">0</div>
-              <div className="text-gray-600 dark:text-gray-400">Holdings</div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Preferred Currency
+              </label>
+              <select
+                className="input-field"
+                value={profile?.preferred_currency || 'USD'}
+                onChange={(e) => setProfile({ ...profile, preferred_currency: e.target.value })}
+              >
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="INR">INR (₹)</option>
+              </select>
             </div>
+
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="notifications"
+                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                checked={profile?.notification_enabled || false}
+                onChange={(e) => setProfile({ ...profile, notification_enabled: e.target.checked })}
+              />
+              <label htmlFor="notifications" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                Enable price notifications
+              </label>
+            </div>
+
+            <div className="flex justify-end space-x-4">
+              <button
+                type="button"
+                onClick={() => router.push('/prices')}
+                className="btn-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={updating}
+                className="btn-primary disabled:opacity-50"
+              >
+                {updating ? 'Updating...' : 'Update Profile'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* Account Statistics */}
+      <div className="card mt-8">
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Account Statistics</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow">
+            <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">0</div>
+            <div className="text-gray-600 dark:text-gray-400">Portfolios</div>
+          </div>
+          <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow">
+            <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">0</div>
+            <div className="text-gray-600 dark:text-gray-400">Alerts Set</div>
+          </div>
+          <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow">
+            <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">0</div>
+            <div className="text-gray-600 dark:text-gray-400">Holdings</div>
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: 'Track real-time and historical prices of gold, silver, platinum, and palladium with portfolio management and price alerts.',
 }
 
+import Navbar from '@/components/Navbar'
+
 export default function RootLayout({
   children,
 }: {
@@ -16,7 +18,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <Navbar />
+        {children}
+      </body>
     </html>
   )
 }

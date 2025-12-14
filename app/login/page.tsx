@@ -29,10 +29,12 @@ export default function LoginPage() {
       if (typeof window !== 'undefined') {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
+        // Trigger navbar update
+        window.dispatchEvent(new Event('auth-change'));
       }
 
-      // Redirect to prices page (since there's no dashboard yet)
-      router.push('/prices');
+      // Redirect to dashboard
+      router.push('/dashboard');
     } catch (err: any) {
       console.error('Login error:', err);
       setError(err.response?.data?.error || 'Login failed');

@@ -32,11 +32,11 @@ export default function MarketOverview() {
       try {
         const response = await fetch('/api/prices/current?currency=INR');
         const data = await response.json();
-        
+
         if (data.prices && Array.isArray(data.prices)) {
           // Filter to only show primary metals (gold, silver, platinum, palladium)
-          const primaryMetals = data.prices.filter((price: MetalPrice) => 
-            ['gold', 'silver', 'platinum', 'palladium'].includes(price.metal)
+          const primaryMetals = data.prices.filter((price: MetalPrice) =>
+            ['gold', 'gold_22k', 'silver', 'platinum', 'palladium'].includes(price.metal)
           );
           setMarketData(primaryMetals);
           setLastUpdated(new Date().toISOString());
@@ -49,7 +49,7 @@ export default function MarketOverview() {
     };
 
     fetchMarketData();
-    
+
     // Refresh data every 5 minutes
     const interval = setInterval(fetchMarketData, 300000);
     return () => clearInterval(interval);
@@ -61,7 +61,7 @@ export default function MarketOverview() {
         <div className="animate-pulse">
           <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((i) => (
+            {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="h-20 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
             ))}
           </div>
@@ -72,17 +72,24 @@ export default function MarketOverview() {
 
   if (!marketData || marketData.length === 0) return null;
 
-  const metals = marketData.map(price => ({
-    name: price.metal.charAt(0).toUpperCase() + price.metal.slice(1),
-    price: price.price * conversionFactor, // Convert price to 10g
-    symbol: getMetalSymbol(price.metal),
-    change: `${price.changePercentage >= 0 ? '+' : ''}${price.changePercentage.toFixed(2)}%`,
-    isPositive: price.changePercentage >= 0
-  }));
+  const metals = marketData.map((price) => {
+    let displayName = price.metal.charAt(0).toUpperCase() + price.metal.slice(1);
+    if (price.metal === 'gold') displayName = 'Gold (24k)';
+    if (price.metal === 'gold_22k') displayName = 'Gold (22k)';
+
+    return {
+      name: displayName,
+      price: price.price * conversionFactor, // Convert price to 10g
+      symbol: getMetalSymbol(price.metal),
+      change: `${price.changePercentage >= 0 ? '+' : ''}${price.changePercentage.toFixed(2)}%`,
+      isPositive: price.changePercentage >= 0
+    };
+  });
 
   function getMetalSymbol(metal: string): string {
     switch (metal) {
       case 'gold': return '🥇';
+      case 'gold_22k': return '🥇';
       case 'silver': return '🥈';
       case 'platinum': return '⚪';
       case 'palladium': return '⚙️';
@@ -102,20 +109,19 @@ export default function MarketOverview() {
           </p>
         )}
       </div>
-      
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {metals.map((metal) => (
-          <div 
-            key={metal.name} 
+          <div
+            key={metal.name}
             className="bg-white dark:bg-gray-700 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300"
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-2xl">{metal.symbol}</span>
-              <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                metal.isPositive 
-                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                  : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-              }`}>
+              <span className={`text-xs font-semibold px-2 py-1 rounded-full ${metal.isPositive
+                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                }`}>
                 {metal.change}
               </span>
             </div>

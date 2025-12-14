@@ -6,13 +6,13 @@ import { Database } from '../../lib/database.types';
 type MetalPriceRow = Database['public']['Tables']['metal_prices']['Row'];
 type PriceAlertRow = Database['public']['Tables']['price_alerts']['Row'];
 
-const METALS = ['gold', 'silver', 'platinum', 'palladium'];
+const METALS = ['gold', 'gold_22k', 'silver', 'platinum', 'palladium'];
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'INR'];
 
 export const updatePrices = async () => {
   try {
     console.log('Updating metal prices...');
-    
+
     // Fetch prices in all currencies simultaneously
     const [usdData, eurData, gbpData, inrData] = await Promise.all([
       metalPriceAPI.getCurrentPrices('USD'),
@@ -20,7 +20,7 @@ export const updatePrices = async () => {
       metalPriceAPI.getCurrentPrices('GBP'),
       metalPriceAPI.getCurrentPrices('INR'),
     ]);
-    
+
     if (!usdData) {
       console.error('Failed to fetch USD price data');
       return;
@@ -28,7 +28,7 @@ export const updatePrices = async () => {
 
     for (const metal of METALS) {
       const priceUSD = usdData[metal as keyof typeof usdData];
-      
+
       if (typeof priceUSD === 'number') {
         const { data: previousPrices } = await supabase
           .from('metal_prices')
@@ -39,7 +39,7 @@ export const updatePrices = async () => {
 
         let change24h = 0;
         let changePercentage = 0;
-        
+
         if (previousPrices && previousPrices.length > 0) {
           const prevPrice = parseFloat(previousPrices[0].price_usd.toString());
           change24h = priceUSD - prevPrice;
@@ -62,20 +62,20 @@ export const updatePrices = async () => {
               change_percentage: changePercentage,
               high_24h: priceUSD * 1.02, // Mock high
               low_24h: priceUSD * 0.98, // Mock low
-              source: 'Metal Price API',
+              source: 'GoodReturns.in (Scraped)',
             },
           ]);
 
         if (error) {
           console.error(`Error inserting ${metal} price:`, error.message);
         } else {
-          console.log(`Updated ${metal}: USD ${priceUSD.toFixed(2)}`);
+          console.log(`Updated ${metal}: USD ${priceUSD.toFixed(2)}, EUR: ${eurData && eurData[metal as keyof typeof eurData]}, INR: ${inrData && inrData[metal as keyof typeof inrData]}`);
         }
       }
     }
-    
+
     console.log('Prices updated successfully for all currencies (USD, EUR, GBP, INR)');
-    
+
     // Check and trigger alerts
     await checkPriceAlerts();
   } catch (error) {
@@ -119,7 +119,7 @@ export const checkPriceAlerts = async () => {
         const condition = alert.condition;
 
         let triggered = false;
-        
+
         if (condition === 'above' && currentPrice >= targetPrice) {
           triggered = true;
         } else if (condition === 'below' && currentPrice <= targetPrice) {
@@ -146,7 +146,7 @@ export const checkPriceAlerts = async () => {
 
           const userEmail = (alert as any).users?.email || 'unknown';
           console.log(`Alert triggered for user ${userEmail}: ${alert.metal_type} ${condition} ${targetPrice}`);
-          
+
           // TODO: Send email notification
         }
       }
@@ -159,13 +159,13 @@ export const checkPriceAlerts = async () => {
 export const startPriceUpdateCron = () => {
   const interval = process.env.PRICE_UPDATE_INTERVAL || '5';
   const cronExpression = `*/${interval} * * * *`; // Every X minutes
-  
+
   cron.schedule(cronExpression, () => {
     updatePrices();
   });
-  
+
   // Run immediately on startup
   updatePrices();
-  
+
   console.log(`Price update cron job scheduled (every ${interval} minutes)`);
 };

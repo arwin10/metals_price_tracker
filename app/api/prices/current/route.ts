@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, supabaseAdmin } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,14 +8,14 @@ export async function GET(request: NextRequest) {
     // Validate environment variables at runtime
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    
+
     if (!supabaseUrl || !supabaseKey) {
       console.error('Missing Supabase environment variables:', {
         hasUrl: !!supabaseUrl,
         hasKey: !!supabaseKey
       });
       return NextResponse.json(
-        { 
+        {
           error: 'Server configuration error',
           message: 'Supabase environment variables are not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel dashboard.',
           debug: {
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const currency = searchParams.get('currency') || 'USD';
     const currencyStr = currency.toUpperCase();
-    
+
     // Validate currency
     const supportedCurrencies = ['USD', 'EUR', 'GBP', 'INR'];
     if (!supportedCurrencies.includes(currencyStr)) {
@@ -39,9 +39,9 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Get latest price for each metal type
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('metal_prices')
       .select('*')
       .order('timestamp', { ascending: false });
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     console.error('Error fetching current prices:', error);
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to fetch prices',
         message: error?.message || 'Unknown error',
         details: process.env.NODE_ENV === 'development' ? error?.stack : undefined

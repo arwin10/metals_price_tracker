@@ -23,7 +23,7 @@ router.get('/current', async (req, res: Response) => {
     const { data, error } = await supabase
       .from('metal_prices')
       .select('*')
-      .in('metal_type', ['gold', 'silver', 'platinum', 'palladium'])
+      .in('metal_type', ['gold', 'gold_22k', 'silver', 'platinum', 'palladium'])
       .order('timestamp', { ascending: false });
 
     if (error) {

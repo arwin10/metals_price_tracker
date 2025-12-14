@@ -25,5 +25,16 @@ export const supabase = createSupabaseClient();
 // Client for server-side operations with service role key
 export const supabaseAdmin = createClient<Database>(
   supabaseUrl || 'https://placeholder.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey || 'placeholder-service-key'
+  process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey || 'placeholder-service-key',
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+    global: {
+      fetch: (url, options) => {
+        return fetch(url, { ...options, cache: 'no-store' });
+      },
+    },
+  }
 );

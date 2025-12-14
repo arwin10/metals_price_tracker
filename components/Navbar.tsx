@@ -10,12 +10,30 @@ export default function Navbar() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    if (token && userData) {
-      setIsLoggedIn(true);
-      setUser(JSON.parse(userData));
-    }
+    const checkAuth = () => {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      if (token && userData) {
+        setIsLoggedIn(true);
+        setUser(JSON.parse(userData));
+      } else {
+        setIsLoggedIn(false);
+        setUser(null);
+      }
+    };
+
+    checkAuth();
+
+    // Listen for custom auth-change event
+    window.addEventListener('auth-change', checkAuth);
+
+    // Listen for storage events (for multi-tab support)
+    window.addEventListener('storage', checkAuth);
+
+    return () => {
+      window.removeEventListener('auth-change', checkAuth);
+      window.removeEventListener('storage', checkAuth);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -23,11 +41,12 @@ export default function Navbar() {
     localStorage.removeItem('user');
     setIsLoggedIn(false);
     setUser(null);
+    window.dispatchEvent(new Event('auth-change'));
     router.push('/');
   };
 
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow-md backdrop-blur-sm bg-opacity-90 dark:bg-opacity-90 sticky top-0 z-50">
+    <nav className="bg-white dark:bg-gray-800 shadow-md backdrop-blur-sm bg-opacity-90 dark:bg-opacity-90 sticky top-0 z-[999]">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
           <Link href="/" className="text-2xl font-bold text-primary-600 dark:text-primary-400 flex items-center">
@@ -44,7 +63,7 @@ export default function Navbar() {
             <Link href="/prices" className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
               All Prices
             </Link>
-            
+
             {isLoggedIn ? (
               <>
                 <Link href="/dashboard" className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
@@ -59,7 +78,7 @@ export default function Navbar() {
                 <Link href="/profile" className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                   Profile
                 </Link>
-                <button 
+                <button
                   onClick={handleLogout}
                   className="ml-2 btn-secondary rounded-lg"
                 >

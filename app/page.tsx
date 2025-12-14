@@ -16,6 +16,8 @@ export default function Home() {
   const [selectedMetal, setSelectedMetal] = useState('gold');
   const [selectedCurrency, setSelectedCurrency] = useState('INR');
   const [selectedUnit, setSelectedUnit] = useState<WeightUnit>('10g');
+  const [chartCurrency, setChartCurrency] = useState('USD');
+  const [chartUnit, setChartUnit] = useState<WeightUnit>('10g');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
 
@@ -51,8 +53,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Navbar />
-      
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section - Only show for non-logged in users */}
         {!isLoggedIn && (
@@ -95,14 +95,14 @@ export default function Home() {
         )}
 
         <MarketOverview />
-        
+
         {/* Current Prices */}
         <section className="mb-12">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
               Current Prices
             </h2>
-            
+
             {/* Currency and Unit Selectors */}
             <div className="flex flex-wrap items-center gap-4">
               <div className="flex items-center gap-3">
@@ -120,7 +120,7 @@ export default function Home() {
                   <option value="INR">INR (₹)</option>
                 </select>
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Unit:
@@ -149,8 +149,8 @@ export default function Home() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {prices.map((price) => (
-                <PriceCard 
-                  key={price.metal} 
+                <PriceCard
+                  key={price.metal}
                   price={price}
                   currency={selectedCurrency}
                   unit={selectedUnit}
@@ -163,11 +163,64 @@ export default function Home() {
 
         {/* Price Chart */}
         <section className="mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-            Price History
-          </h2>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Price History
+            </h2>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Metal:
+                </label>
+                <select
+                  value={selectedMetal}
+                  onChange={(e) => setSelectedMetal(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 capitalize"
+                >
+                  <option value="gold">Gold (24k)</option>
+                  <option value="gold_22k">Gold (22k)</option>
+                  <option value="silver">Silver</option>
+                  <option value="platinum">Platinum</option>
+                  <option value="palladium">Palladium</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Currency:
+                </label>
+                <select
+                  value={chartCurrency}
+                  onChange={(e) => setChartCurrency(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="USD">USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                  <option value="GBP">GBP (£)</option>
+                  <option value="INR">INR (₹)</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Unit:
+                </label>
+                <select
+                  value={chartUnit}
+                  onChange={(e) => setChartUnit(e.target.value as WeightUnit)}
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="oz">Troy Ounce</option>
+                  <option value="kg">Kilogram</option>
+                  <option value="10g">10 Grams</option>
+                  <option value="1g">1 Gram</option>
+                </select>
+              </div>
+
+            </div>
+          </div>
           <div className="card">
-            <PriceChart metal={selectedMetal} />
+            <PriceChart metal={selectedMetal} currency={chartCurrency} unit={chartUnit} />
           </div>
         </section>
 
